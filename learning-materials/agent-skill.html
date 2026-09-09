@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Skill 一分钟速览 + 分层测试 · 个人学习卡片</title>
+<style>
+  :root{--bg:#ffffff;--fg:#1f2430;--muted:#6b7280;--line:#e5e7eb;
+    --accent:#7c3aed;--accent-soft:#f5f3ff;--good:#059669;--warn:#d97706;
+    --bad:#dc2626;--code-bg:#f8fafc;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.7;}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 24px 70px;}
+  h1{font-size:30px;margin:0 0 6px;}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--line);}
+  h2{font-size:21px;margin:30px 0 10px;padding-left:10px;border-left:4px solid var(--accent);}
+  code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;padding:1px 6px;
+    font-family:Consolas,Menlo,monospace;font-size:.92em;}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto;font-size:13.5px;}
+  pre code{border:none;background:none;padding:0;}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14.5px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:var(--accent-soft);}
+  .hero{background:var(--accent-soft);border:1px solid #ddd6fe;border-radius:12px;
+    padding:16px 18px;font-size:17px;margin:14px 0;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fdfdfd;}
+  .card b{display:block;margin-bottom:6px;color:#111827;}
+  .quiz{background:#f9fafb;border:1px solid var(--line);border-radius:10px;padding:16px;margin:16px 0;}
+  .quiz .q{font-weight:600;margin-bottom:10px;}
+  .quiz .opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+  .quiz .opt{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:#fff;cursor:pointer;}
+  .quiz .opt:hover{border-color:var(--accent);background:var(--accent-soft);}
+  .quiz .opt.selected{border-color:var(--accent);background:var(--accent-soft);}
+  .quiz .opt.correct{border-color:var(--good);background:#ecfdf5;}
+  .quiz .opt.wrong{border-color:var(--bad);background:#fef2f2;}
+  .badge{display:inline-block;border-radius:6px;padding:1px 9px;font-size:12.5px;font-weight:700;color:#fff;}
+  .b-l1{background:#6b7280;}.b-l2{background:var(--accent);}.b-l3{background:var(--warn);}
+  .fb{font-size:14.5px;padding:9px 12px;border-radius:8px;margin-top:6px;display:none;}
+  .fb.show{display:block;}
+  .fb.ok{background:#ecfdf5;color:var(--good);border:1px solid #a7f3d0;}
+  .fb.no{background:#fef2f2;color:var(--bad);border:1px solid #fecaca;}
+  .nav{margin:10px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  button{border:none;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--fg);}
+  .score{font-weight:700;color:var(--accent);}
+  .src{margin:8px 0;padding:9px 12px;border-left:3px solid var(--accent);background:#fbfdff;font-size:14px;}
+  .src a{color:var(--accent);word-break:break-all;text-decoration:none;}
+  .src a:hover{text-decoration:underline;}
+  .flag{font-size:12px;color:var(--warn);}
+  .prog{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Agent Skill 一分钟速览 + 分层测试</h1>
+  <div class="meta">个人学习卡片 · 学习 Agent Skill 知识点 · 2026-09-09 · 测试为分层自适应（答对升级 / 答错降级）</div>
+
+  <h2>⏱ 60 秒核心点</h2>
+  <div class="hero"><strong>Agent Skill（智能体技能）</strong> = 一种<strong>打包"方法 + 知识"的能力文件</strong>，让 Agent 在遇到相关任务时<strong>自动按需加载</strong>你的专长，而不用你每次重新解释。它本质是<em>"把做过的事，变成可复用、稳定的能力"</em>。</div>
+
+  <div class="grid">
+    <div class="card"><b>① 它长什么样</b>一个目录，核心是 <code>SKILL.md</code>：顶部 <code>YAML</code> 写 <code>name</code>/<code>description</code>（用于"何时触发"匹配），正文写<strong>分步操作指引</strong>；可附带脚本 <code>scripts/</code> 与参考文件。</div>
+    <div class="card"><b>② 关键机制：渐进式披露</b>平时只占约 100 token 的元数据 → 任务命中才读完整 SKILL.md（&lt;5K token）→ 用到才读脚本/资料。→ <strong>不挤占上下文</strong>。</div>
+    <div class="card"><b>③ 和普通 Prompt 的区别</b>Prompt 是一次性、随会话消失；Skill 是<strong>独立文件、跨会话复用</strong>、可给模型"装专长"。</div>
+  </div>
+
+  <table>
+    <tr><th>组成</th><th>作用</th><th>一句话</th></tr>
+    <tr><td><code>name</code>/<code>description</code></td><td>被模型扫描、决定何时触发</td><td>Skill 的"门牌"</td></tr>
+    <tr><td>SKILL.md 正文</td><td>告诉模型"这类任务怎么做"</td><td>可复用的"交接手册"</td></tr>
+    <tr><td>脚本 / 资源</td><td>执行确定性操作 / 查资料</td><td>只把结果带回上下文</td></tr>
+  </table>
+
+  <div class="prog">一句话记忆：<strong>触发看 description，干活看 SKILL.md，省内存靠按需加载。</strong></div>
+
+  <h2>🎯 分层自测（答对升级 ↑ / 答错降级 ↓，从 L1 开始）</h2>
+  <div id="state" class="score"></div>
+
+  <div id="quizbox"></div>
+
+  <h2>📚 知识点来源（可核查链接）</h2>
+  <div class="src">Anthropic — Agent Skills 官方文档：定义、SKILL.md 结构、三层渐进式披露、安全建议<br>
+    <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview</a> <span class="flag">✓ 已核实可访问</span></div>
+  <div class="src">Anthropic Blog — Skills explained：Skill 与 Prompt / Project / MCP 的对比、何时该用 Skill<br>
+    <a href="https://claude.com/blog/skills-explained">https://claude.com/blog/skills-explained</a> <span class="flag">✓ 已核实可访问</span></div>
+  <div class="src">Anthropic — Claude Skills 介绍页：技能理念与应用场景<br>
+    <a href="https://claude.com/skills">https://claude.com/skills</a> <span class="flag">✓ 已核实可访问</span></div>
+  <p class="flag">说明：以上链接在 2026-09-09 经实际访问核实；核心点用个人语言提炼，未整段照搬。</p>
+</div>
+
+<script>
+// ---- 分层题库：L1 基础 / L2 进阶 / L3 应用 ----
+const Q = {
+  L1: [
+    {q:"Agent Skill 最核心的文件是什么？",opts:["agent.py","SKILL.md","README.md","config.json"],a:1,
+     fb:"对：SKILL.md 是核心，YAML 写 name/description，正文写操作指引。"},
+    {q:"SKILL.md 顶部 YAML 中，模型主要靠哪个字段决定\"何时触发\"这个 Skill？",opts:["version","description","author","license"],a:1,
+     fb:"对：description 说明\"做什么+何时用\"，是触发匹配的关键。"}
+  ],
+  L2: [
+    {q:"\"渐进式披露\"（progressive disclosure）带来的核心好处是什么？",opts:["让模型跑得更快","减少不相关 Skill 挤占上下文窗口","自动安装依赖","加密文件内容"],a:1,
+     fb:"对：平时只占约 100 token 元数据，命中才加载全文，从而省上下文。"},
+    {q:"一个 Skill 目录可以额外包含哪类内容？",opts:["只能有 SKILL.md","可含 scripts/ 脚本与参考文件","必须含 README.md","禁止任何子文件"],a:1,
+     fb:"对：可含脚本（确定性执行）与参考文件，按需读取。"},
+    {q:"Skill 与普通 Prompt 的本质区别是什么？",opts:["没有区别","Skill 是独立文件、可跨会话复用","Prompt 更省 token","Skill 不能自定义"],a:1,
+     fb:"对：Prompt 是一次性、会话内；Skill 是文件化、可复用、可自动触发。"}
+  ],
+  L3: [
+    {q:"现在让你\"每次开会后把纪要整理成三段式待办\"，最合适沉淀成哪种形态？",opts:["每次手写 Prompt","一个 meeting-notes 的 Skill","改 SKILL.md 的 name","删除已保存记录"],a:1,
+     fb:"对：重复任务应沉淀为 Skill，写一次、处处复用、输出一致。"},
+    {q:"使用第三方 Skill 前，最需要警惕什么？",opts:["文件名太长","脚本/资源里可能有可疑网络请求或越权操作","description 写太长","元数据用了英文"],a:1,
+     fb:"对：Skill 会授予模型新能力，务必审计其脚本/资源、只信任可靠来源。"}
+  ]
+};
+const order=["L1","L2","L3"];
+let level=0, right=0, wrong=0, idx=0, answered=false;
+const state=document.getElementById("state");
+const box=document.getElementById("quizbox");
+
+function badge(which){return '<span class="badge b-l1">基础</span>'.replace("b-l1","b-"+which.toLowerCase())+" "+which.replace("b-l1","");}
+function currentSet(){return Q[order[level]];}
+function render(){
+  answered=false;
+  state.innerHTML="当前层：<span class='badge b-l"+ (level+1) +"'>"+ (level===0?"L1 基础":level===1?"L2 进阶":"L3 应用") +"</span>　答对 <span class='score'>"+right+"</span> · 答错 <span style='color:var(--bad)'>"+wrong+"</span> · 题 "+idx+"/"+currentSet().length;
+  const set=currentSet();
+  if(idx>=set.length){ box.innerHTML=""; return; }
+  const item=set[idx];
+  box.innerHTML='<div class="quiz"><div class="q">'+item.q+'</div><div class="opts">'+
+    item.opts.map((o,i)=>'<div class="opt" onclick="choose(this,'+i+')">'+o+'</div>').join("")+
+    '</div><div class="fb" id="fb"></div></div>';
+}
+function choose(el,i){
+  if(answered)return; answered=true;
+  const set=currentSet(),item=set[idx],fb=document.getElementById("fb");
+  el.classList.add("selected");
+  if(i===item.a){ right++; el.classList.add("correct"); fb.className="fb ok show"; fb.innerHTML="✔ 正确！"+item.fb; }
+  else{ wrong++; el.classList.add("wrong"); fb.className="fb no show"; fb.innerHTML="✘ 答错。"+item.fb; }
+  document.querySelectorAll(".opt").forEach((o,j)=>{ if(j===item.a)o.classList.add("correct"); });
+  // 升级/降级逻辑：本题答对且是当前层最后一题→升层；答错→降层(至少L1)
+  const isLast=idx>=set.length-1;
+  setTimeout(()=>{
+    if(i===item.a && isLast && level<order.length-1){ level++; idx=0; }
+    else if(i!==item.a){ if(level>0)level--; idx=0; }
+    else idx++;
+    render();
+    if(level>=order.length-1 && idx>=Q[order[level]].length){
+      state.innerHTML="🎉 你通过全部层级！L1基础→L2进阶→L3应用 已通关。<br><span class='score'>正确 "+right+" · 错误 "+wrong+"</span>";
+      box.innerHTML="";
+    }
+  },900);
+}
+render();
+</script>
+</body>
+</html>
