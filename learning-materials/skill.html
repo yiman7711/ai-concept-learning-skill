@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill（技能）精讲 · 个人学习卡片</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1f2430; --muted:#6b7280; --line:#e5e7eb;
+    --accent:#7c3aed; --accent-soft:#f5f3ff; --good:#059669; --warn:#d97706;
+    --code-bg:#f8fafc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.75;}
+  .wrap{max-width:860px;margin:0 auto;padding:48px 28px 80px;}
+  h1{font-size:32px;margin:0 0 4px;letter-spacing:.5px;}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+  h2{font-size:22px;margin:44px 0 14px;padding-left:12px;border-left:4px solid var(--accent);}
+  h3{font-size:17px;margin:26px 0 8px;color:#111827;}
+  p{margin:10px 0;}
+  ul,ol{margin:10px 0;padding-left:24px;}
+  li{margin:6px 0;}
+  code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;
+    padding:1px 6px;font-family:Consolas,Menlo,monospace;font-size:.92em;}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;
+    padding:14px 16px;overflow:auto;font-size:14px;line-height:1.6;}
+  pre code{border:none;background:none;padding:0;}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:15px;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--accent-soft);font-weight:600;}
+  .one-liner{font-size:19px;color:#111827;background:var(--accent-soft);
+    padding:18px 20px;border-radius:10px;border:1px solid #ddd6fe;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0;
+    background:#fdfdfd;}
+  .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);
+    border-radius:6px;padding:2px 10px;font-size:13px;font-weight:600;margin-right:6px;}
+  .good{color:var(--good);font-weight:600;}
+  .warn{color:var(--warn);font-weight:600;}
+  details{background:#f9fafb;border:1px solid var(--line);border-radius:8px;
+    padding:12px 16px;margin:10px 0;}
+  summary{cursor:pointer;font-weight:600;}
+  .source{font-size:14px;}
+  .source a{color:var(--accent);text-decoration:none;word-break:break-all;}
+  .source a:hover{text-decoration:underline;}
+  .src-item{margin:8px 0;padding:10px 14px;border-left:3px solid var(--accent);
+    background:#fbfdff;}
+  .flag{font-size:12px;color:var(--warn);}
+  .goal li::marker{color:var(--accent);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Skill（技能）精讲</h1>
+  <div class="meta">个人学习卡片 · 由 <code>concept-mastery</code> Skill 生成 · 学习日期 2026-09-09 · 领域：AI 工程</div>
+
+  <h2>0. 一句话定位</h2>
+  <div class="one-liner">Skill 是一种<strong>把"做某类任务的方法与知识"打包成可复用文件（SKILL.md + 脚本/资料）的能力单元</strong>；它被放在文件系统里，当任务相关时才被按需加载，从而把个人/团队的一次性经验沉淀成可重复调用、稳定可靠的"专长"。</div>
+
+  <h2>1. 学习目标</h2>
+  <ul class="goal">
+    <li>我能说出 Skill 由哪些部分组成，以及 <code>SKILL.md</code> 里必须写的字段（name / description）。</li>
+    <li>我能解释"渐进式披露"如何帮模型省上下文。</li>
+    <li>我能区分 Skill 与 Prompt、与 Project 的关系，判断何时该把提示词沉淀成 Skill。</li>
+    <li>我能亲手写一个结构规范、能复用、可自检的自定义 Skill。</li>
+  </ul>
+
+  <h2>2. 核心问题</h2>
+  <ol>
+    <li>Skill 和一段"写得很好的提示词"到底有什么区别？</li>
+    <li>为什么 Skill 要做成"基于文件系统的目录 + 分层加载"？</li>
+    <li>Skill 如何把"个人会做、但要反复解释"的任务知识沉淀下来？</li>
+    <li>写一个 Skill 时，如何保证它可靠、安全、可维护？</li>
+  </ol>
+
+  <h2>3. 结构化解释</h2>
+  <h3>3.1 我的理解</h3>
+  <p>把 Skill 想成一份<strong>"给新同事的入职交接手册"</strong>：里面不只有"该做什么"，还有"我惯用的方法、最佳实践、样例、以及别踩的坑"。跟对话里临时说一句"帮我按 XX 格式做"不同，Skill 把这些写成了<strong>独立文件</strong>，可以跨对话复用，下次一提相关任务它就自动按这套规矩干活。</p>
+  <p>让我最有感触的设计是<strong>"渐进式披露"（progressive disclosure）</strong>：平时模型只读每个 Skill 几十个 token 的 <code>name+description</code>（用来判断何时触发），直到真用到某个 Skill 时才去读它完整的 <code>SKILL.md</code>，再必要时才去读脚本/资料。这样装了再多的 Skill 也不会白白挤占上下文窗口——正好呼应了我上一张卡片"上下文"里学到的痛点。</p>
+
+  <h3>3.2 核心机制与组成</h3>
+  <p>一个 Skill 就是一个<strong>目录</strong>，典型结构：</p>
+  <pre><code>my-skill/
+├── SKILL.md            # 主说明：YAML 元数据 + 操作指引
+├── REFERENCE.md        # (可选) 更细的参考/规范
+└── scripts/
+    └── tool.py         # (可选) 确定性执行的脚本/工具</code></pre>
+  <p><code>SKILL.md</code> 顶部必须包含 YAML 元数据：</p>
+  <pre><code>---
+name: my-skill
+description: 它做什么 + 何时该用（用于触发匹配）
+---
+# 正文：清晰的分步指引、样例、最佳实践…</code></pre>
+  <p>加载分三层、时机不同，正是它省上下文的关键：</p>
+  <table>
+    <tr><th>层级</th><th>何时加载</th><th>成本</th><th>内容</th></tr>
+    <tr><td>Level 1 · 元数据</td><td>启动时常驻</td><td>约 100 token/个</td><td>name + description（用于判断是否触发）</td></tr>
+    <tr><td>Level 2 · 指令</td><td>触发后才读</td><td>&lt;5K token</td><td>SKILL.md 正文，方法与指引</td></tr>
+    <tr><td>Level 3 · 资源/脚本</td><td>按需读取/执行</td><td>用前为 0</td><td>参考文件、脚本（只把执行结果带回上下文）</td></tr>
+  </table>
+
+  <h3>3.3 关键术语</h3>
+  <ul>
+    <li><strong>Skill / 技能</strong>：可复用的、基于文件系统的能力包。</li>
+    <li><strong>SKILL.md</strong>：含 YAML 元数据 + 操作指引的核心文件。</li>
+    <li><strong>YAML frontmatter / 元数据</strong>：文件顶部 <code>---</code> 之间的字段（name/description 等）。</li>
+    <li><strong>Progressive disclosure / 渐进式披露</strong>：按需分层加载，省上下文。</li>
+    <li><strong>Agent Skills</strong>：Anthropic 提出的"装进 Agent、按任务自动使用"的 Skill 方案。</li>
+    <li><strong>skill-creator</strong>：用于辅助生成规范 Skill 结构的工具/技能。</li>
+  </ul>
+
+  <h2>4. 应用场景示例</h2>
+  <p><span class="tag">场景</span><strong>把"整理会议纪要"沉淀成一个 Skill</strong></p>
+  <ol>
+    <li><strong>发现问题</strong>：我每周都要让 AI 把会议记录整理成"待办+决策+风险"三段式，每次都重复解释格式。</li>
+    <li><strong>沉淀为 Skill</strong>：建目录 <code>meeting-notes/</code>，写 <code>SKILL.md</code>，在 description 写清"当用户上传会议记录、要求整理纪要时使用"，正文写清三段式模板、语气规范、以及输出示例。</li>
+    <li><strong>复用</strong>：以后直接说"整理这份纪要"，模型读 description 判断触发 → 读 SKILL.md → 按既定格式稳定产出，不用再教它一遍。</li>
+    <li><strong>可组合</strong>：若还想要"纪要转行动项追踪表"，可以再加一个配套 Skill 或脚本，做多步流程。</li>
+  </ol>
+  <p>这正是作业里我写 <code>concept-mastery</code> Skill 的思路：把"学新概念要包含哪些部分、来源怎么核查、怎么自检"这套我自己的方法固化下来，之后学任何新概念都能调用同一套高质量流程，而不是每次从零写提示。</p>
+
+  <h2>5. 概念辨析与使用边界</h2>
+  <table>
+    <tr><th>对比维度</th><th>Skill</th><th>易混淆对象</th></tr>
+    <tr><td>vs. Prompt（提示词）</td><td>独立文件、跨对话<em>持久复用</em>、按需加载</td><td>会话内一次性、易失、需反复输入</td></tr>
+    <tr><td>vs. Project（项目/上下文）</td><td>针对<em>某类任务</em>的方法包，可在不同会话触发</td><td>绑在某<em>项目/会话上下文</em>的长期资料</td></tr>
+    <tr><td>vs. Tool（工具）</td><td>提供"怎么做的<em>方法知识</em>"（偏指令/流程）</td><td>提供可执行的<em>原子能力</em>（偏函数/API）</td></tr>
+    <tr><td>vs. MCP（服务连接）</td><td>本地能力与知识包</td><td>外部工具/数据<em>连接协议</em></td></tr>
+  </table>
+  <p class="warn"><strong>使用边界与安全提醒：</strong>Skill 本质是给模型"授予新能力"，等于给模型装了可执行指令与代码。<em>只使用可信来源</em>（自己写的、或官方/可信渠道的）。写好后要通读一遍、检查其中有没有可疑的网络请求或越权操作。判断标准：若一段提示词你在多个会话里反复重复，就值得沉淀成 Skill；否则别过度封装。</p>
+
+  <h2>6. 自测问题</h2>
+  <details><summary>Q1：SKILL.md 顶部必须写哪两个字段？它们各起什么作用？</summary>
+    <p><strong>参考答案：</strong>name（Skill 名称）与 description（说明做什么 + 何时触发）。description 是模型匹配请求、决定是否加载该 Skill 的依据。</p></details>
+  <details><summary>Q2：为什么 Skill 采用"渐进式披露"分层加载？</summary>
+    <p><strong>参考答案：</strong>平时只占少量 token（元数据），触发后才读完整指令、按需读脚本/资源，从而避免把大量 Skill 内容一次性塞进有限的上下文窗口。</p></details>
+  <details><summary>Q3：什么时候"该把提示词升级成 Skill"？</summary>
+    <p><strong>参考答案：</strong>当同一段规范/流程需要在多个会话反复使用、想保证输出一致性时（例如品牌格式、分析方法、文档模板），就该固化成一个 Skill。</p></details>
+  <details><summary>Q4：使用第三方 Skill 前要注意什么？</summary>
+    <p><strong>参考答案：</strong>审查 SKILL.md 及其脚本/资源，警惕可疑的外部网络请求、异常文件访问或越权操作；只用可信来源的 Skill。</p></details>
+
+  <h2>7. 参考来源（可核查）</h2>
+  <div class="source">
+    <div class="src-item">📄 Anthropic — Agent Skills 官方文档：Skill 定义、结构、三层加载、安全与最佳实践<br>
+      <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview</a> <span class="flag">✓ 已核实可访问</span></div>
+    <div class="src-item">📄 Anthropic Blog —《Skills explained》：Skill 与 Prompt / Project / MCP / subagent 的对比，何时用 Skill<br>
+      <a href="https://claude.com/blog/skills-explained">https://claude.com/blog/skills-explained</a> <span class="flag">✓ 已核实可访问</span></div>
+    <div class="src-item">📄 Anthropic — Claude Skills 介绍页（技能理念与应用）<br>
+      <a href="https://claude.com/skills">https://claude.com/skills</a> <span class="flag">✓ 已核实可访问</span></div>
+  </div>
+  <p class="flag">说明：以上链接在 2026-09-09 均经实际访问核实；本页核心定义与层级表用个人语言重述，未整段照搬。</p>
+</div>
+</body>
+</html>

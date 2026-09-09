@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 精讲 · 个人学习卡片</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1f2430; --muted:#6b7280; --line:#e5e7eb;
+    --accent:#2563eb; --accent-soft:#eff6ff; --good:#059669; --warn:#d97706;
+    --code-bg:#f8fafc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.75;}
+  .wrap{max-width:860px;margin:0 auto;padding:48px 28px 80px;}
+  h1{font-size:32px;margin:0 0 4px;letter-spacing:.5px;}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+  h2{font-size:22px;margin:44px 0 14px;padding-left:12px;border-left:4px solid var(--accent);}
+  h3{font-size:17px;margin:26px 0 8px;color:#111827;}
+  p{margin:10px 0;}
+  ul,ol{margin:10px 0;padding-left:24px;}
+  li{margin:6px 0;}
+  code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;
+    padding:1px 6px;font-family:Consolas,Menlo,monospace;font-size:.92em;}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:15px;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--accent-soft);font-weight:600;}
+  .one-liner{font-size:19px;color:#111827;background:var(--accent-soft);
+    padding:18px 20px;border-radius:10px;border:1px solid #bfdbfe;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0;
+    background:#fdfdfd;}
+  .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);
+    border-radius:6px;padding:2px 10px;font-size:13px;font-weight:600;margin-right:6px;}
+  .good{color:var(--good);font-weight:600;}
+  .warn{color:var(--warn);font-weight:600;}
+  details{background:#f9fafb;border:1px solid var(--line);border-radius:8px;
+    padding:12px 16px;margin:10px 0;}
+  summary{cursor:pointer;font-weight:600;}
+  .source{font-size:14px;}
+  .source a{color:var(--accent);text-decoration:none;word-break:break-all;}
+  .source a:hover{text-decoration:underline;}
+  .src-item{margin:8px 0;padding:10px 14px;border-left:3px solid var(--accent);
+    background:#fbfdff;}
+  .flag{font-size:12px;color:var(--warn);}
+  .goal li::marker{color:var(--accent);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Agent（智能体）精讲</h1>
+  <div class="meta">个人学习卡片 · 由 <code>concept-mastery</code> Skill 生成 · 学习日期 2026-09-09 · 领域：AI 工程</div>
+
+  <h2>0. 一句话定位</h2>
+  <div class="one-liner">Agent 不是某个模型，而是<strong>以 LLM 为"大脑"、能自主规划、调用工具、在真实环境中行动并根据结果自我纠偏，最终代表用户完成目标任务</strong>的一整套闭环系统。</div>
+
+  <h2>1. 学习目标</h2>
+  <ul class="goal">
+    <li>我能用自己的话讲出 Agent 与"普通 LLM 聊天"的本质区别。</li>
+    <li>我能说出 Agent 的三个核心组成（模型 / 工具 / 指令），并解释各自作用。</li>
+    <li>我能举出一个真实场景，说明 Agent 是如何"思考—行动—观察"循环工作的。</li>
+    <li>我能辨析 Agent 与 Workflow（工作流）的边界，判断何时需要真正的 Agent。</li>
+  </ul>
+
+  <h2>2. 核心问题（本资料将正面回答）</h2>
+  <ol>
+    <li>Agent 到底"智能"在哪？它和一段固定流程的自动化有什么不同？</li>
+    <li>一个 Agent 由哪些部分搭起来？模型是不是全部？</li>
+    <li>Agent 是怎么一步步完成一个没被预先写死的任务的？</li>
+    <li>什么情况下"根本不该建 Agent"，用简单工作流就够了？</li>
+  </ol>
+
+  <h2>3. 结构化解释</h2>
+  <h3>3.1 我的理解</h3>
+  <p>一开始我很容易把"GPT 很聪明"当成"这就是 Agent"。后来才明白：一个只会<strong>单轮问答</strong>的模型，就像一位只有大脑、没有手脚、也不能翻书的专家——它只能"说"，不能"做"。Agent 给这个大脑配上了<strong>手（工具）和一套工作方法（循环）</strong>：它能自己决定先查什么资料、再调用哪个 API、拿到结果后判断下一步，甚至发现方向错了主动改。</p>
+  <p>用一句话记住：<em>"模型负责想，工具负责做，Agent 把"想+做+看结果"串成了一个能自动推进的闭环"</em>。让我印象最深的是，它的执行路径<strong>不是开发者预先写死的</strong>，而是模型根据当前情况<strong>动态</strong>决定的——这正是它和传统自动化最根本的分水岭。</p>
+
+  <h3>3.2 核心机制与组成</h3>
+  <p>不同框架的表述略有差异，但骨架一致。OpenAI 官方把 Agent 的基石概括为<strong>三件事</strong>：</p>
+  <table>
+    <tr><th>组成</th><th>英文</th><th>作用</th><th>我的理解</th></tr>
+    <tr><td>模型</td><td>Model</td><td>负责推理与决策的 LLM</td><td>"大脑"，决定下一步做什么</td></tr>
+    <tr><td>工具</td><td>Tools</td><td>可调用的外部函数 / API</td><td>"手脚"，去搜索、查库、写文件、调用系统</td></tr>
+    <tr><td>指令</td><td>Instructions</td><td>行为准则与护栏（guardrails）</td><td>"性格与边界"，规定该怎么干活、什么不能做</td></tr>
+  </table>
+  <p>Anthropic 更强调运行方式，把 Agentic System 分成两类，这是最容易混淆的点：</p>
+  <table>
+    <tr><th>类型</th><th>控制权</th><th>路径</th><th>何时用</th></tr>
+    <tr><td>工作流 Workflow</td><td>由预定义代码控制</td><td>固定、可预测</td><td>任务清晰、步骤可预先拆解</td></tr>
+    <tr><td>Agent</td><td>由 LLM 动态自主控制</td><td>灵活、开放</td><td>任务开放、需要动态决策与纠错</td></tr>
+  </table>
+  <p>一个典型 Agent 的工作方式是"<strong>思考 → 行动 → 观察</strong>"循环（ReAct 思想的体现）：</p>
+  <div class="card">
+    <code>模型思考(Reason) → 调用工具(Act) → 看结果(Observe) → 再思考 → …… → 判断"目标达成"→ 结束并交还控制权</code>
+  </div>
+
+  <h3>3.3 关键术语（中英对照）</h3>
+  <ul>
+    <li><strong>Agent / 智能体</strong>：代表用户独立完成任务的自主体系统。</li>
+    <li><strong>Model / 模型</strong>：Agent 背后的大语言模型。</li>
+    <li><strong>Tool use / Function calling / 工具调用</strong>：模型按格式请求调用外部函数的能力。</li>
+    <li><strong>Instructions / 指令、System prompt / 系统提示</strong>：规定 Agent 行为准则。</li>
+    <li><strong>Workflow / 工作流</strong>：用预定义代码路径编排 LLM 与工具的系统。</li>
+    <li><strong>Handoff / 任务转移</strong>：多 Agent 之间把任务交给更合适的子 Agent。</li>
+    <li><strong>Guardrail / 护栏</strong>：限制 Agent 行为的输入/输出安全机制。</li>
+  </ul>
+
+  <h2>4. 应用场景示例</h2>
+  <p><span class="tag">场景</span><strong>让 Agent 自动做"竞品价格调研日报"</strong></p>
+  <p>假设我要让 Agent 每天早上把某几款产品的公开价格整理成一张表。任务<em>没有被写成固定脚本</em>，因为页面结构会变、要判断的信息很模糊：</p>
+  <ol>
+    <li><strong>建 Agent</strong>：给它指令"每天去这几个公开页面找产品 A/B/C 的价格，整理成统一表格，拿不准的标注出来"，并授予"网页搜索""读取/写表格文件"两个工具。</li>
+    <li><strong>循环执行</strong>：模型先调用网页搜索抓取 → 观察页面 → 发现某款信息不全 → 再换关键词补查 → 判断够了 → 写入表格 → 汇报完成。</li>
+    <li><strong>异常处理</strong>：若某数据源完全打不开，Agent 可停下来把问题交还给我，而不是硬编一个"失败就重试三次"的死逻辑。</li>
+  </ol>
+  <p>这正是 Agent 的用武之地：<em>判断模糊、需要查漏补缺、路径不固定</em>。若只是"每周把同一份 CSV 转格式"，一个几行的确定性脚本就够，根本不必上 Agent。</p>
+
+  <h2>5. 概念辨析与使用边界</h2>
+  <table>
+    <tr><th>对比维度</th><th>Agent</th><th>易混淆对象</th></tr>
+    <tr><td>vs. 单轮 LLM / 聊天机器人</td><td>能调用工具、多步执行、自我纠错</td><td>只"说"不"做"，不控制工作流执行</td></tr>
+    <tr><td>vs. Workflow（工作流）</td><td>模型动态决定路径</td><td>开发者写死代码路径，模型只填步骤</td></tr>
+    <tr><td>vs. 单纯"工具"Tools</td><td>是<em>系统/编排层</em>，会主动调度工具</td><td>是被调用的<em>原子能力</em>，本身不决策</td></tr>
+  </table>
+  <p class="warn"><strong>使用边界提醒：</strong>Anthropic 明确建议——<em>"先找最简单的方案，只在复杂度能带来可衡量收益时才引入 Agent。"</em>任务规则明确、步骤固定时，一个确定性工作流反而更快、更省钱、更好排查。不要为了"显得智能"而滥用 Agent。</p>
+
+  <h2>6. 自测问题</h2>
+  <details><summary>Q1：单个 GPT 模型算不算一个 Agent？为什么？</summary>
+    <p><strong>参考答案：</strong>通常不算。缺少"调用工具 / 与环境交互 / 多步自主决策"的闭环。若把它包进能调工具并按模型决策推进的系统中，才构成 Agent。OpenAI 明确把"简单聊天机器人、单轮 LLM"排除在 Agent 之外。</p></details>
+  <details><summary>Q2：Agent 三大核心组成是哪三个？</summary>
+    <p><strong>参考答案：</strong>模型（决策/推理）、工具（行动）、指令（行为准则与护栏）。</p></details>
+  <details><summary>Q3：Agent 与 Workflow 最本质的区别是什么？</summary>
+    <p><strong>参考答案：</strong>控制权归属。Workflow 的执行路径由预定义代码决定；Agent 的执行路径由 LLM 根据当前上下文动态决定，能自我纠错。</p></details>
+  <details><summary>Q4：什么信号说明"你其实不该建 Agent"？</summary>
+    <p><strong>参考答案：</strong>任务步骤明确、可预先拆解成固定规则；此时确定性工作流更可预测、更便宜、易排查。Agent 适合规则难维护、判断模糊、重度依赖非结构化/开放决策的场景。</p></details>
+
+  <h2>7. 参考来源（可核查）</h2>
+  <div class="source">
+    <div class="src-item">📄 Anthropic《Building effective agents》(Engineering at Anthropic) — 工作流 vs Agent 权威区分<br>
+      <a href="https://www.anthropic.com/engineering/building-effective-agents">https://www.anthropic.com/engineering/building-effective-agents</a> <span class="flag">✓ 已核实可访问</span></div>
+    <div class="src-item">📄 OpenAI《A practical guide to building agents》— Agent=模型+工具+指令，工作流≠Agent<br>
+      <a href="https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/">https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/</a> <span class="flag">✓ 已核实可访问</span></div>
+    <div class="src-item">📄 OpenAI Agents SDK 文档（中文版）— Agent 组成、instructions / tools / handoff<br>
+      <a href="https://openai.github.io/openai-agents-python/zh/agents">https://openai.github.io/openai-agents-python/zh/agents</a> <span class="flag">✓ 已核实可访问</span></div>
+  </div>
+  <p class="flag">说明：以上链接在 2026-09-09 均经过实际访问核实；核心定义用我自己的语言重述，未整段照搬。</p>
+</div>
+</body>
+</html>

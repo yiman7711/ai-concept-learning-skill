@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型的上下文（Context）精讲 · 个人学习卡片</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1f2430; --muted:#6b7280; --line:#e5e7eb;
+    --accent:#0e7490; --accent-soft:#ecfeff; --good:#059669; --warn:#d97706;
+    --code-bg:#f8fafc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.75;}
+  .wrap{max-width:860px;margin:0 auto;padding:48px 28px 80px;}
+  h1{font-size:32px;margin:0 0 4px;letter-spacing:.5px;}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+  h2{font-size:22px;margin:44px 0 14px;padding-left:12px;border-left:4px solid var(--accent);}
+  h3{font-size:17px;margin:26px 0 8px;color:#111827;}
+  p{margin:10px 0;}
+  ul,ol{margin:10px 0;padding-left:24px;}
+  li{margin:6px 0;}
+  code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;
+    padding:1px 6px;font-family:Consolas,Menlo,monospace;font-size:.92em;}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:15px;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--accent-soft);font-weight:600;}
+  .one-liner{font-size:19px;color:#111827;background:var(--accent-soft);
+    padding:18px 20px;border-radius:10px;border:1px solid #a5f3fc;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0;
+    background:#fdfdfd;}
+  .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);
+    border-radius:6px;padding:2px 10px;font-size:13px;font-weight:600;margin-right:6px;}
+  .good{color:var(--good);font-weight:600;}
+  .warn{color:var(--warn);font-weight:600;}
+  details{background:#f9fafb;border:1px solid var(--line);border-radius:8px;
+    padding:12px 16px;margin:10px 0;}
+  summary{cursor:pointer;font-weight:600;}
+  .source{font-size:14px;}
+  .source a{color:var(--accent);text-decoration:none;word-break:break-all;}
+  .source a:hover{text-decoration:underline;}
+  .src-item{margin:8px 0;padding:10px 14px;border-left:3px solid var(--accent);
+    background:#fbfdff;}
+  .flag{font-size:12px;color:var(--warn);}
+  .goal li::marker{color:var(--accent);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>大模型的上下文（Context）精讲</h1>
+  <div class="meta">个人学习卡片 · 由 <code>concept-mastery</code> Skill 生成 · 学习日期 2026-09-09 · 领域：LLM 原理</div>
+
+  <h2>0. 一句话定位</h2>
+  <div class="one-liner">上下文本体上指模型<strong>一次推理时"能看到"的全部输入信息</strong>；而"上下文窗口（Context Window）"是这个"能看到"的<strong>容量上限</strong>（以 token 计）——它决定模型能否"记得"多早以前说过的话、多长的一段文档，本质是模型一段<strong>有限的工作记忆</strong>。</div>
+
+  <h2>1. 学习目标</h2>
+  <ul class="goal">
+    <li>我能区分"上下文"与"上下文窗口"这两个词，并说清 token 计量的意义。</li>
+    <li>我能解释为什么模型在长对话里会"忘记"开头内容。</li>
+    <li>我能说明"上下文窗口≠模型真的全部用得上"，理解"大海捞针"测试的用意。</li>
+    <li>我能把上下文管理（截断/摘要/RAG）用于设计更稳的提示与 Agent。</li>
+  </ul>
+
+  <h2>2. 核心问题</h2>
+  <ol>
+    <li>模型到底"记得"什么？它有没有长期记忆？</li>
+    <li>为什么聊久了它会忘掉最开始的要求？</li>
+    <li>上下文窗口很大，就代表它都处理得很好吗？</li>
+    <li>工程上如何"管理"有限的上下文（截断、摘要、外挂检索）？</li>
+  </ol>
+
+  <h2>3. 结构化解释</h2>
+  <h3>3.1 我的理解</h3>
+  <p>把上下文想成模型面前的一张<strong>固定大小的"工作台/黑板"</strong>：我写的问题、模型生成的回答、以及之前几轮对话，都被切成 token 摆在这张黑板上。黑板尺寸有限（例如 128K token），一旦写满，为了记下新内容，最早写在角落的话就会被"擦掉"。所以模型<strong>不是不记得</strong>，而是它每次只能基于"当前黑板上还剩的内容"来续写——更早的早已不在它的视野里。</p>
+  <p>让我最受触动的一点是：模型没有"想记住"的主观意图，也没有独立的长期记忆库。所谓"记忆"不过是<strong>上下文窗口里此刻仍保留的那部分文本</strong>。这也是为什么在多轮 Agent 对话里，系统要把关键状态反复写回上下文、或用外部数据库（RAG、向量库）把"历史"捞回来——因为它真正能"看见"的只有窗口内那一块。</p>
+
+  <h3>3.2 核心机制与组成</h3>
+  <table>
+    <tr><th>概念</th><th>英文</th><th>含义</th></tr>
+    <tr><td>上下文</td><td>Context</td><td>模型单次推理可参考的全部输入（历史 + 当前提示 + 已生成内容）</td></tr>
+    <tr><td>上下文窗口</td><td>Context Window</td><td>单次能处理的最大 token 数上限</td></tr>
+    <tr><td>Token / 词元</td><td>Token</td><td>模型处理文本的最小单元（中约 1.5–2 字 / token）</td></tr>
+    <tr><td>注意力机制</td><td>Self-Attention</td><td>让模型在序列内各 token 间建立关联；计算随长度近似平方增长</td></tr>
+    <tr><td>位置编码</td><td>Positional Encoding (RoPE 等)</td><td>让模型区分 token 先后顺序，关系到长文本能否"用满"窗口</td></tr>
+  </table>
+  <p><strong>关键边界——"窗口大小"和"有效利用"是两回事：</strong></p>
+  <div class="card">
+    即便某模型名义支持百万 token，它对窗口中部与后部信息的"关注质量"也可能下降。业界用<strong>"大海捞针（needle-in-a-haystack）"</strong>这类基准来检验：把一句关键事实埋进很长的文档里，看模型还能不能准确找出来。结果是，很多模型的<em>有效上下文</em>明显小于<em>标称上下文</em>。
+  </div>
+
+  <h3>3.3 关键术语</h3>
+  <ul>
+    <li><strong>Context / 上下文</strong>：模型此刻参考的文本集合。</li>
+    <li><strong>Context Window / 上下文窗口</strong>：token 容量上限。</li>
+    <li><strong>Token / 词元</strong>：文本的切分最小单元，也是计费单位。</li>
+    <li><strong>Input / Output tokens</strong>：一次请求中模型读入与产出的 token。</li>
+    <li><strong>Max output tokens</strong>：单次输出上限（可独立于窗口配置）。</li>
+    <li><strong>RAG / 检索增强</strong>：把相关片段检索出来塞进上下文，而不塞全部历史。</li>
+  </ul>
+
+  <h2>4. 应用场景示例</h2>
+  <p><span class="tag">场景</span><strong>写一个"多轮客服 Agent"时如何不丢关键信息</strong></p>
+  <ol>
+    <li>用户先说了订单号与诉求，又聊了很多句无关内容。若全塞进上下文，窗口很快满，最早的"订单号"可能被挤掉。</li>
+    <li>工程做法：<em>每次轮次只把"系统摘要（订单号+用户诉求+已做步骤）"重新写回上下文</em>，而不是无脑拼接全部原始聊天。</li>
+    <li>再叠加 RAG：订单详情等长资料存在外部，只在需要时检索关键片段放入上下文。</li>
+    <li>结果：模型始终在有限窗口内保有<strong>最关键</strong>的信息，既省 token 又不易"失忆"。</li>
+  </ol>
+  <p>这也回答了开篇问题：真正可靠的"记忆"要靠<strong>工程化上下文管理</strong>（摘要、截断、检索），而不是指望模型自己记住一切。</p>
+
+  <h2>5. 概念辨析与使用边界</h2>
+  <table>
+    <tr><th>对比维度</th><th>上下文窗口 Context Window</th><th>易混淆对象</th></tr>
+    <tr><td>vs. 上下文长度 Context Length</td><td>实际预测时模型考虑的输入序列长度，≤ 架构上限</td><td>模型架构能处理的<em>理论上限</em>（能力边界）</td></tr>
+    <tr><td>vs. 长期记忆 / 训练知识</td><td>会话级、短期的"工作记忆"，用完即失</td><td>训练时学到、长期驻留模型参数里的知识</td></tr>
+    <tr><td>vs. "窗口越大=越强"</td><td>还需考虑<em>有效利用</em>与算力成本</td><td>盲目堆窗口会带来平方级计算开销与"中间信息丢失"</td></tr>
+  </table>
+  <p class="warn"><strong>使用边界提醒：</strong>不要把"把它全塞进上下文"当作唯一解法。窗口越大，单次算力与费用越高；且超长输入可能触发位置编码外推导致的中间遗忘。要按<em>信息优先级</em>取舍——放不下就做摘要或外挂检索。</p>
+
+  <h2>6. 自测问题</h2>
+  <details><summary>Q1：模型在很长的多轮对话里"忘记"开头，最直接原因是什么？</summary>
+    <p><strong>参考答案：</strong>早期内容已超出上下文窗口、被新内容"挤掉"，不再参与本次生成——并非模型"故意遗忘"，而是它只能基于窗口内现存文本续写。</p></details>
+  <details><summary>Q2：上下文窗口的计量单位是什么？它包含哪些内容？</summary>
+    <p><strong>参考答案：</strong>以 token 数计量。包含当前提示输入、已生成输出，多轮时通常还有最近几轮历史。</p></details>
+  <details><summary>Q3："标称窗口很大"是否等于"都处理得很好"？</summary>
+    <p><strong>参考答案：</strong>不一定。受注意力机制与位置编码影响，模型对长文中间/后段信息可能关注不足，"有效上下文"常小于标称值，"大海捞针"测试即用于检验。</p></details>
+  <details><summary>Q4：若历史太长放不进窗口，有哪些工程手段？</summary>
+    <p><strong>参考答案：</strong>截断最旧的、把历史压缩成系统摘要、用 RAG/向量检索只注入关键片段、或将长文档分段处理。</p></details>
+
+  <h2>7. 参考来源（可核查）</h2>
+  <div class="source">
+    <div class="src-item">📄 OpenAI — Models 文档：列出各模型 <code>Context window</code> 与 <code>Max output tokens</code> 规格<br>
+      <a href="https://platform.openai.com/docs/models">https://platform.openai.com/docs/models</a> <span class="flag">✓ 标准官方文档（访问受地区/CDN 限制，内容经检索交叉确认）</span></div>
+    <div class="src-item">📄 OpenAI — 概念页 Tokens：token 定义、估算与计费<br>
+      <a href="https://platform.openai.com/docs/concepts/tokens">https://platform.openai.com/docs/concepts/tokens</a> <span class="flag">✓ 同上</span></div>
+    <div class="src-item">📄 中国军网《Token：衡量算力的尺度》— token 词元与上下文窗口的通俗解释（含中文换算）<br>
+      <a href="https://www.81.cn/szb_223187/gfbszbxq/index.html?articleid=980232&paperDate=2026-06-09&paperNumber=04">https://www.81.cn/…</a> <span class="flag">✓ 已核实可访问</span></div>
+  </div>
+  <p class="flag">说明：本页面向我对"上下文窗口"的整体理解也参考了百度百科词条《上下文窗口》用于核验长文本测试（needle-in-a-haystack）表述；核心机制采用个人语言重述，未整段照搬。个别官方链接所在站点对部分网络不可达，已如实标注。</p>
+</div>
+</body>
+</html>
