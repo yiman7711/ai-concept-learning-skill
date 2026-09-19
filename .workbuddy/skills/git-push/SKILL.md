@@ -48,6 +48,8 @@ agent_created: true
 2. **提交粒度**：一个提交打包，还是按主题拆成多个提交？
 3. **是否只做自检**：用户若只是"看看有没有问题"，跑完第 1–2 步就交付报告，**不要写入**。
 
+另外，**工作区里已存在的删除与重命名必须单独确认**——它们往往不是本次任务产生的（例如某个已入库的 Skill 文件在工作区被删了，而仓库里还有）。这类改动可能是有意重构，也可能是误操作，**不要顺手带进本次提交**。先问：恢复它，还是确认删除并提交？
+
 ### 第 1 步 · 侦察（只读）
 
 ```bash
@@ -57,8 +59,15 @@ python .workbuddy/skills/git-push/scripts/preflight.py
 
 脚本输出：仓库/分支/远端/上游追踪状态、暂存与未跟踪清单、敏感信息与超大文件扫描结果、以及**下一步建议的推送命令**。
 
-若环境没有可用的 Python，退化为手工只读命令：
+Windows 下注意：脚本用原生 Python 运行，**不认 Git Bash 的 `/tmp/xxx` 这类路径**（会报"工作目录无效"）。传入路径前先转换：
 
+```bash
+python .workbuddy/skills/git-push/scripts/preflight.py --cwd "$(cygpath -w /tmp/xxx)"
+```
+
+常用参数：`--max-size-mb 5` 调整大文件阈值，`--quiet` 只看结论段。
+
+若环境没有可用的 Python，退化为手工只读命令：
 ```bash
 git rev-parse --show-toplevel
 git status --short --branch
@@ -168,8 +177,12 @@ git push --force-with-lease origin main
 ```bash
 git status --short --branch        # 应显示 up to date / 无待推送
 git log --oneline -3
+git rev-parse HEAD                 # 本地完整哈希
 git ls-remote --heads origin main  # 远端哈希，确认真写进去了
+git rev-list --left-right --count origin/main...HEAD   # 期望 0  0
 ```
+
+`git ls-remote` 返回的哈希必须与本地 `HEAD` **完全一致**，且领先/落后为 `0 0`，才算推送完成。
 
 向用户汇报时**必须包含**：
 

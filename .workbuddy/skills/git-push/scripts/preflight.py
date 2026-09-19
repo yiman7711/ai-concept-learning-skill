@@ -384,8 +384,13 @@ def main():
 
     # ---- 3. 安全扫描 ----
     head("3. 安全扫描")
-    to_commit = list(dict.fromkeys(staged + untracked))  # 即将随本次提交入库的文件
-    print(f"扫描范围：暂存 {len(staged)} + 未跟踪 {len(untracked)}，去重后 {len(to_commit)} 个文件")
+    # 必须覆盖"内容可能变化"的全部文件：已暂存 + 已修改未暂存 + 未跟踪。
+    # 只算 staged + untracked 会漏掉"往已入库文件里写入密钥"这种最常见的情形。
+    to_commit = list(dict.fromkeys(staged + modified + untracked))
+    print(
+        f"扫描范围：暂存 {len(staged)} + 已修改 {len(modified)} + 未跟踪 {len(untracked)}，"
+        f"去重后 {len(to_commit)} 个文件"
+    )
 
     # 3.1 路径规则
     print("\n路径规则检查：")
