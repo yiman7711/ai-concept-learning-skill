@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器学习 精讲 · 个人学习卡片</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1f2430; --muted:#6b7280; --line:#e5e7eb;
+    --accent:#2563eb; --accent-soft:#eff6ff; --good:#059669; --warn:#d97706;
+    --code-bg:#f8fafc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.75;}
+  .wrap{max-width:860px;margin:0 auto;padding:40px 28px 80px;}
+  h1{font-size:30px;margin:0 0 4px;letter-spacing:.5px;}
+  .meta{color:var(--muted);font-size:14px;margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+  h2{font-size:22px;margin:42px 0 14px;padding-left:12px;border-left:4px solid var(--accent);}
+  h3{font-size:17px;margin:26px 0 8px;color:#111827;}
+  p{margin:10px 0;}
+  ul,ol{margin:10px 0;padding-left:24px;}
+  li{margin:6px 0;}
+  code{background:var(--code-bg);border:1px solid var(--line);border-radius:4px;
+    padding:1px 6px;font-family:Consolas,Menlo,monospace;font-size:.92em;}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:15px;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--accent-soft);font-weight:600;}
+  .one-liner{font-size:19px;color:#111827;background:var(--accent-soft);
+    padding:18px 20px;border-radius:10px;border:1px solid #bfdbfe;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0;
+    background:#fdfdfd;}
+  .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);
+    border-radius:6px;padding:2px 10px;font-size:13px;font-weight:600;margin-right:6px;}
+  .good{color:var(--good);font-weight:600;}
+  .warn{color:var(--warn);font-weight:600;}
+  details{background:#f9fafb;border:1px solid var(--line);border-radius:8px;
+    padding:12px 16px;margin:10px 0;}
+  summary{cursor:pointer;font-weight:600;}
+  .source{font-size:14px;}
+  .source a{color:var(--accent);text-decoration:none;word-break:break-all;}
+  .source a:hover{text-decoration:underline;}
+  .src-item{margin:8px 0;padding:10px 14px;border-left:3px solid var(--accent);
+    background:#fbfdff;}
+  .flag{font-size:12px;color:var(--warn);}
+  .goal li::marker{color:var(--accent);font-weight:700;}
+  .news{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;
+    padding:14px 18px;margin:14px 0;}
+  .news b{color:var(--warn);}
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    font-size:14px;border:1px solid var(--line);border-radius:8px;padding:10px 14px;
+    background:#fbfdff;margin:0 0 24px;}
+  .nav a{color:var(--accent);text-decoration:none;font-weight:600;}
+  .nav a:hover{text-decoration:underline;}
+  .nav-bottom{margin:44px 0 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav">
+    <a href="ai-01-bigdata.html">← 上一篇：大数据与数据要素</a>
+    <a href="index.html">目录</a>
+    <a href="ai-03-supervised-unsupervised.html">下一篇：监督学习与无监督学习 →</a>
+  </nav>
+
+  <h1>机器学习 精讲</h1>
+  <div class="meta">个人学习卡片 · 由 <code>concept-mastery</code> Skill 生成 · 学习日期 2026-09-17 · 领域：大数据与人工智能</div>
+
+  <h2>0. 一句话定位</h2>
+  <div class="one-liner"><strong>机器学习（Machine Learning）</strong>说的是<em>规则不再由人一条条写死，而是把大量"例子＋答案"交给算法，让它自己把规则总结出来</em>。它的边界也很清楚：<strong>机器只能学到数据里出现过的规律</strong>——数据里没有的东西、数据里被写歪的偏见，它一样学不会，还会照抄。</div>
+
+  <h2>1. 学习目标</h2>
+  <ul class="goal">
+    <li>我能用"邮件过滤"这一个例子，把"传统编程写规则"和"机器学习学规则"的分工差别说清楚。</li>
+    <li>我能说出监督学习 / 无监督学习 / 强化学习（supervised / unsupervised / reinforcement learning）各自靠什么信号学、各举一个新闻场景的例子。</li>
+    <li>我能按顺序复述训练流程六步：数据 → 特征 → 模型 → 训练 → 评估 → 预测，并说出每一步大致在做什么。</li>
+    <li>我能解释为什么数据要分成训练集 / 验证集 / 测试集，并说清"反复用测试集调参"为什么会让评估结果失真。</li>
+    <li>我能用"背题"和"没复习到"两个类比区分过拟合（overfitting）与欠拟合（underfitting），并说出各自的典型信号。</li>
+  </ul>
+
+  <h2>2. 核心问题（本资料将正面回答）</h2>
+  <ol>
+    <li>机器学习和"程序员写一堆 if-else 规则"到底差在哪？差别只在写法，还是在能力边界上？</li>
+    <li>监督、无监督、强化学习，只看"有没有标签"来区分够不够？</li>
+    <li>数据为什么要切成三份？只留一份训练、一份测试行不行？</li>
+    <li>模型在训练集上考了 99 分，为什么反而要警惕？</li>
+    <li>人工智能、机器学习、深度学习这三个词，是并列关系还是套娃关系？</li>
+  </ol>
+
+  <h2>3. 结构化解释</h2>
+
+  <h3>3.1 我的理解</h3>
+  <p>我以前听到"机器学习"，第一反应是"机器自己会学、会思考"。查完资料才明白，它一点都不神秘：<strong>机器学习做的事就是"从数据里找一条规则"</strong>。IBM 那篇解释里举的例子我觉得特别到位——同样是做垃圾邮件过滤，规则式做法要数据科学家手工写出"什么算垃圾邮件"的通用判据；机器学习只要求选好算法、准备好一批样例邮件，模型先猜、算出猜错了多少，再反过来调整自己，直到猜得够准。规则是<strong>被"学"出来的（learned），不是被写出来的</strong>。</p>
+  <p>我试着用厨房打比方：传统编程像老师傅把菜谱写得极细——几克盐、几秒翻面，每一步都由人指定，规则改一次就得重写一次；机器学习像让学徒面对一柜子成品菜加上食客评分，自己总结出"糖多一点的菜评分高"这类规律。前者的上限是老师傅的经验，后者的上限是样例的数量与质量。</p>
+  <p>第二个转变来自"考高分"这件事。我原先以为训练得越准越好，直到看到 IBM 讲 overfitting 的那段：模型如果训练太久或太复杂，会把训练数据里的<strong>噪声</strong>当成规律记下来，结果换成新数据就崩。它给了一个很实用的判断方法——留一部分数据当测试集，如果训练数据错误率很低、测试数据错误率很高，那就是过拟合。这就像学生把练习册答案背下来了，一换卷子就露馅。</p>
+  <p>最后是把三个词摆正：<strong>人工智能 &gt; 机器学习 &gt; 深度学习</strong>，是包含关系，不是三兄弟。AI 是"让机器做智能的事"这个总目标；机器学习是实现它的主流方法；深度学习是机器学习里用多层神经网络的那一支。</p>
+
+  <h3>3.2 核心机制与组成</h3>
+
+  <p><strong>① 两种做法：写规则 vs 学规则</strong>——这是理解机器学习的起点：</p>
+  <table>
+    <tr><th>对比维度</th><th>传统编程（规则由人写）</th><th>机器学习（规则从数据学）</th></tr>
+    <tr><td>人的工作</td><td>把判定条件一条条写进代码</td><td>准备数据与标签、选算法、调参数</td></tr>
+    <tr><td>规则从哪来</td><td>领域经验，人工总结</td><td>算法从样本中拟合，人往往说不清细节</td></tr>
+    <tr><td>规则形态</td><td>可读的 if-else，能追溯</td><td>一堆参数（数值），可解释性较弱</td></tr>
+    <tr><td>遇到新情况</td><td>规则没覆盖就不会处理，规则越堆越脆</td><td>有一定泛化能力，但只在数据覆盖的范围内</td></tr>
+    <tr><td>典型例子</td><td>按关键词黑名单拦邮件</td><td>用历史邮件训练出的垃圾邮件分类器</td></tr>
+  </table>
+
+  <p><strong>② 三大类机器学习</strong>——按"靠什么信号学"来分：</p>
+  <table>
+    <tr><th>类别</th><th>训练信号</th><th>典型任务</th><th>新闻场景例子</th></tr>
+    <tr><td>监督学习<br>Supervised Learning</td><td>带标签的数据：每个样本都配一个"正确答案"</td><td>分类（判断类别）、回归（预测数值）</td><td>给评论打"违规 / 不违规"标签，训练初筛模型</td></tr>
+    <tr><td>无监督学习<br>Unsupervised Learning</td><td>只有数据，没有标准答案，模型自己找内在结构与分组</td><td>聚类、降维、异常检测</td><td>把上万条读者留言聚成若干话题群，看舆论集中在哪</td></tr>
+    <tr><td>强化学习<br>Reinforcement Learning</td><td>与环境互动，按"做对了给奖励"来调整策略</td><td>序列决策、控制与博弈</td><td>推荐位排序策略的持续试探与优化</td></tr>
+  </table>
+  <p class="flag">说明：IBM 把学习方法归为这三种范式，并指出实际训练常常是混合的——例如无监督常被用来给监督或强化学习做数据预处理。</p>
+
+  <p><strong>③ 训练流程六步</strong>——从原始数据到能用的预测：</p>
+  <div class="card">
+    <code>① 数据（收集原始样本）→ ② 特征（把样本变成可计算的量）→ ③ 模型（选一个算法结构）→ ④ 训练（调参数让错误变小）→ ⑤ 评估（用没见过的数据检验）→ ⑥ 预测（对新样本给结果）</code>
+  </div>
+  <table>
+    <tr><th>步骤</th><th>在做什么</th><th>最容易出问题的地方</th></tr>
+    <tr><td>① 数据</td><td>确定要解决的判断、收集足够的样本</td><td>样本不具代表性（只覆盖了某类人群/某段时间）</td></tr>
+    <tr><td>② 特征</td><td>把文本、图片等转成模型能算的数字</td><td>选错特征，模型再好也学不到东西</td></tr>
+    <tr><td>③ 模型</td><td>选定算法结构，等于定下"规则的形状"</td><td>任务与算法不匹配（该分类却用了回归）</td></tr>
+    <tr><td>④ 训练</td><td>反复预测—算误差—调参数</td><td>训练太久（过拟合）、训练不够（欠拟合）</td></tr>
+    <tr><td>⑤ 评估</td><td>在训练时没见过的数据上测</td><td>拿测试集反复调参，等于变相"漏题"</td></tr>
+    <tr><td>⑥ 预测</td><td>把模型用于真实新样本</td><td>上线后数据分布变了，效果悄悄下滑</td></tr>
+  </table>
+
+  <p><strong>④ 为什么要把数据切成三份</strong>——"自己出题自己改卷"不算数：</p>
+  <table>
+    <tr><th>数据集</th><th>作用</th><th>类比</th><th>使用要点</th></tr>
+    <tr><td>训练集<br>Training Set</td><td>供模型学习参数</td><td>平时做的练习题</td><td>占大头，通常 60%～80%</td></tr>
+    <tr><td>验证集<br>Validation Set</td><td>调超参数、选方案、决定何时停止训练</td><td>模拟考，用来决定复习策略</td><td>可以被反复使用，因为它本来就允许你"看"</td></tr>
+    <tr><td>测试集<br>Test Set</td><td>最终评估真实水平，模拟"从未见过的数据"</td><td>正式高考，只能考一次</td><td>只在最后用；拿它调参就会高估效果</td></tr>
+  </table>
+  <p class="flag">说明：IBM 讲评估时提到 k 折交叉验证（k-fold cross-validation）——把数据分成 k 份轮流做留出集，最后取平均分，样本少时比单次划分更稳。</p>
+
+  <p><strong>⑤ 过拟合 / 欠拟合 / 刚刚好</strong>——模型效果的三种状态：</p>
+  <table>
+    <tr><th>状态</th><th>直觉类比</th><th>典型信号</th><th>常见对策</th></tr>
+    <tr><td>欠拟合<br>Underfitting</td><td>根本没复习进去，题都做不对</td><td>训练集和测试集都表现差</td><td>换更强的模型、增加有效特征、训练更久</td></tr>
+    <tr><td>刚刚好</td><td>学会了方法，换张卷子也会做</td><td>两边表现接近且都不错</td><td>保持，并持续监控真实数据的变化</td></tr>
+    <tr><td>过拟合<br>Overfitting</td><td>把练习册答案背下来了</td><td>训练集近乎满分，测试集明显变差</td><td>更多数据、减少特征、正则化、早停（early stopping）</td></tr>
+  </table>
+  <p class="flag">说明：IBM 指出"低错误率 + 高方差"是过拟合的信号，并提醒过拟合与欠拟合共同构成偏差—方差权衡（bias-variance tradeoff），目标是找到中间那个"甜点"。</p>
+
+  <h3>3.3 关键术语（中英对照）</h3>
+  <ul>
+    <li><strong>机器学习 / Machine Learning</strong>：让算法从数据中自动学出规律，而不是由人写死规则的建模方式。</li>
+    <li><strong>特征 / Feature</strong>：描述一个样本的可计算属性，是模型真正"看到"的输入。</li>
+    <li><strong>标签 / Label</strong>：样本对应的正确答案，监督学习的关键前提。</li>
+    <li><strong>模型 / Model</strong>：学到的那套"输入到输出"的映射规则，由一组参数构成。</li>
+    <li><strong>训练 / Training</strong>：反复预测、计算误差、调整参数，使误差逐步下降的过程。</li>
+    <li><strong>泛化 / Generalization</strong>：模型在没见过的数据上仍然表现良好的能力，这是机器学习真正的目标。</li>
+    <li><strong>过拟合 / Overfitting</strong>：模型过分贴合训练数据（连噪声一起记下），换到新数据就变差。</li>
+    <li><strong>欠拟合 / Underfitting</strong>：模型太弱或训练不足，连训练数据里的主要趋势都没抓住。</li>
+    <li><strong>超参数 / Hyperparameter</strong>：由人在训练前设定的选项（如模型复杂度、学习轮数），与模型自己学到的参数不同。</li>
+  </ul>
+
+  <h2>4. 应用场景示例</h2>
+  <p><span class="tag">场景</span><strong>用监督学习做一个"新闻评论是否违规"的初筛助手</strong></p>
+  <p>编辑部每天收到上万条评论，人工逐条看不过来。注意这里的任务性质是<strong>分类型</strong>：每条评论要有一个人给的"违规 / 不违规"答案，模型才有东西可学。</p>
+  <ol>
+    <li><strong>把问题说清楚</strong>：先定义"违规"到底包含哪些情形（辱骂、广告引流、泄露隐私等），并写成可操作的判定说明——这一步不写清楚，后面标注一定前后不一。</li>
+    <li><strong>准备数据与标签</strong>：从历史评论中抽取样本，由两名以上审核员独立标注，对不一致的分歧开会裁定，形成"真实基准"（ground truth）。数据要覆盖不同话题、不同时间的评论，不能只挑热帖。</li>
+    <li><strong>转成特征</strong>：把评论文本转成模型可计算的表示（例如词频、关键词、句长等），这一步决定了模型"能看见什么"。</li>
+    <li><strong>划分数据集</strong>：把标注好的数据切成训练集、验证集、测试集。测试集必须"锁起来"，标注员和调参的同学都不能提前拿它试。</li>
+    <li><strong>训练与评估</strong>：在训练集上训练，用验证集调方案，最后用测试集给出唯一一次正式成绩。同时分开看两类错误：<strong>把违规判成正常</strong>（漏放）和<strong>把正常判成违规</strong>（误伤），这两者的代价完全不同。</li>
+    <li><strong>上线与监控</strong>：模型只做初筛，把可疑评论按优先级推给人复核；同时定期统计线上真实表现，一旦新出现的话题或表达方式让效果下滑（数据分布变了），就要补充新样本重新训练。</li>
+  </ol>
+  <div class="news"><b>新闻视角：</b>新闻机构用机器学习做内容审核时，最容易犯的错是<strong>把模型的分数当成结论</strong>。模型输出的是"与历史标注相似的概率"，不是对某句话的价值判断；它学到的是标注员过去的口径，标注口径偏了，模型会把这个偏见<strong>规模化、自动化地重复一遍</strong>。所以关键在于：标注标准公开可查、错误分类的代价被分开讨论、以及<strong>人的复核环节不能被省掉</strong>。此外，处理用户评论涉及个人信息与平台责任，具体操作须以现行法规与平台规则为准。</div>
+
+  <h2>5. 概念辨析与使用边界</h2>
+  <table>
+    <tr><th>对比维度</th><th>概念 A</th><th>易混淆对象 B</th></tr>
+    <tr><td>机器学习 vs 传统统计建模</td><td>目标是预测得准，看重在<strong>新数据</strong>上的表现；模型可以很复杂、参数成千上万，常被当"黑箱"用</td><td>目标是解释变量之间的关系、检验假设，强调模型可解释与统计显著性，模型通常更简洁</td></tr>
+    <tr><td>人工智能 vs 机器学习 vs 深度学习</td><td>层层包含：AI 是总目标（让机器表现出智能行为），机器学习是实现它的主流途径</td><td>深度学习是机器学习的一个子集，专指用<strong>多层神经网络</strong>的模型；不是与机器学习并列的另一个东西</td></tr>
+    <tr><td>机器学习 vs 规则引擎</td><td>规则从数据中学，能覆盖人想不到的组合情形，但难以逐条解释</td><td>规则由人写死，完全可解释、可审计，但规则一多就互相冲突、维护成本高</td></tr>
+    <tr><td>分类 vs 回归</td><td>输出是<strong>离散类别</strong>（违规 / 不违规、是 / 否）</td><td>输出是<strong>连续数值</strong>（预计阅读量、房价、气温）</td></tr>
+  </table>
+  <p class="warn"><strong>使用边界提醒：</strong>机器学习<span class="warn">只能在数据覆盖的范围内有效</span>。它不会因为"算法先进"就自动获得常识，也不会区分"相关"与"因果"——如果训练数据里"提到某地名"的评论恰好大多被判违规，模型可能就把地名当成了违规信号。用在公共传播场景（内容审核、推荐、风险评分）时，务必保留人工复核、记录模型的判断依据，并定期检查是否存在对特定群体的系统性偏差。</p>
+
+  <h2>6. 自测问题</h2>
+  <details><summary>Q1：同样是过滤垃圾邮件，规则式做法与机器学习做法的根本区别是什么？</summary>
+    <p><strong>参考答案：</strong>规则式做法需要人手工写出"什么算垃圾邮件"的通用判据，规则是<strong>被显式编写</strong>的；机器学习只需要选好算法并准备一批样例邮件，模型在训练中不断预测、计算误差、调整自身，规则是<strong>被隐式学出来的（learned）</strong>。IBM 的解释还指出：任务越复杂，人工穷举所有模式与变量就越困难，规则式模型也越脆弱，这正是机器学习成为主流的原因。</p></details>
+  <details><summary>Q2：监督学习、无监督学习、强化学习，分别靠什么"信号"学习？</summary>
+    <p><strong>参考答案：</strong>监督学习靠<strong>带标签的训练数据</strong>，即每个输入都配有外部给出的"正确答案"；无监督学习<strong>没有任何外部标准答案</strong>，模型自己去找数据中的内在结构、相似性与分组；强化学习既不靠标签也不靠找结构，而是让模型与环境互动，根据<strong>奖励</strong>来判断哪些行为是"好"的。三者的训练信号不同，适合的任务也不同。</p></details>
+  <details><summary>Q3：为什么不能"用测试集来挑最好的模型"？</summary>
+    <p><strong>参考答案：</strong>测试集的意义是模拟"模型从未见过的数据"，用来估计真实表现。如果你反复在测试集上比较方案、挑分数最高的那个，测试集的信息就通过你的选择渗进了模型，测试成绩会<strong>系统性偏乐观</strong>，上线后往往达不到。正确做法是用验证集做这些选择，测试集只保留到最后用一次。</p></details>
+  <details><summary>Q4：一位同学说："我的模型在训练数据上准确率 99%，效果非常好。"这句话有什么问题？</summary>
+    <p><strong>参考答案：</strong>只看训练集准确率不能说明效果。训练集分数高有两种可能：模型确实学到了规律，或者它把训练数据的细节乃至噪声都<strong>背了下来</strong>（过拟合）。判断标准是"训练集与测试集表现是否接近"：如果训练集近乎满分而测试集明显变差，就是过拟合的典型信号（IBM 所说的"低错误率 + 高方差"）。真正要报告的是模型在未见数据上的表现。</p></details>
+
+  <h2>7. 参考来源（可核查）</h2>
+  <div class="source">
+    <div class="src-item">📄 IBM Think —《What is machine learning?》（机器学习的定义、与传统规则式 AI 的对比、三大类学习范式、监督学习下的分类与回归）<br>
+      <a href="https://www.ibm.com/think/topics/machine-learning">https://www.ibm.com/think/topics/machine-learning</a> <span class="flag">✓ 已核实可访问（2026-09-17）</span></div>
+    <div class="src-item">📄 IBM Think —《What is overfitting?》（过拟合与欠拟合的定义、区分信号、留出测试集的做法、k 折交叉验证与常见缓解手段）<br>
+      <a href="https://www.ibm.com/think/topics/overfitting">https://www.ibm.com/think/topics/overfitting</a> <span class="flag">✓ 已核实可访问（2026-09-17）</span></div>
+    <div class="src-item">📄 中国政府网 —《国务院关于印发新一代人工智能发展规划的通知》（国发〔2017〕35号，其中"高级机器学习理论"专栏列出统计学习基础理论、无监督学习、半监督学习、主动学习、深度强化学习等研究方向）<br>
+      <a href="https://www.gov.cn/zhengce/content/2017-07/20/content_5211996.htm">https://www.gov.cn/zhengce/content/2017-07/20/content_5211996.htm</a> <span class="flag">✓ 已核实可访问（2026-09-17）</span></div>
+  </div>
+  <p class="flag">说明：以上链接于 2026-09-17 逐条实际访问核实；核心解释为个人语言重述，未整段照搬。</p>
+
+  <h2>8. 关联概念（本系列中的位置）</h2>
+  <table>
+    <tr><th>关系</th><th>概念</th><th>怎么连起来的</th></tr>
+    <tr><td>前置 ←</td><td><a href="ai-01-bigdata.html">大数据与数据要素</a></td><td>机器学习的原料就是数据；数据的规模与质量（5V 里的 Volume 与 Veracity）直接决定模型效果</td></tr>
+    <tr><td>顺承 →</td><td><a href="ai-03-supervised-unsupervised.html">监督学习与无监督学习</a></td><td>把三大类里最常用的两类展开：标签有无、分类与回归、聚类与降维</td></tr>
+    <tr><td>顺承 →</td><td><a href="ai-04-neural-network.html">神经网络</a></td><td>神经网络是机器学习中的一类模型，它的训练同样靠"算误差、调参数"这一套</td></tr>
+    <tr><td>易混淆 ⚠</td><td><a href="ai-07-llm.html">大语言模型</a></td><td>大语言模型不是"另一种机器学习"，它是用海量数据训练出来的超大模型，同样遵循上面这套流程，只是规模与训练方式不同</td></tr>
+  </table>
+
+  <nav class="nav nav-bottom">
+    <a href="ai-01-bigdata.html">← 上一篇：大数据与数据要素</a>
+    <a href="index.html">目录</a>
+    <a href="ai-03-supervised-unsupervised.html">下一篇：监督学习与无监督学习 →</a>
+  </nav>
+</div>
+</body>
+</html>
